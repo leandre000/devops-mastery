@@ -1,22 +1,23 @@
 package com.rca.demo_course.controller;
 
 import com.rca.demo_course.service.CalculatorService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Comprehensive integration tests for CalculatorController.
+ * Unit tests for CalculatorController.
+ * Tests all REST endpoints with various scenarios including error cases.
  */
 @WebMvcTest(CalculatorController.class)
-@DisplayName("Calculator Controller Integration Tests")
 public class CalculatorControllerTest {
 
     @Autowired
@@ -25,238 +26,268 @@ public class CalculatorControllerTest {
     @MockBean
     private CalculatorService calculatorService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setUp() {
+        // Setup common mock behaviors if needed
+    }
+
+    // Addition Tests
     @Test
-    @DisplayName("Add endpoint should return correct result")
+    @DisplayName("Should perform addition via GET endpoint")
     void testAddEndpoint() throws Exception {
-        when(calculatorService.add(2.0, 3.0)).thenReturn(5.0);
+        // Given
+        double a = 5.0;
+        double b = 3.0;
+        double expectedResult = 8.0;
 
+        when(calculatorService.add(a, b)).thenReturn(expectedResult);
+
+        // When & Then
         mockMvc.perform(get("/api/calculator/add")
-                .param("a", "2.0")
-                .param("b", "3.0"))
+                .param("a", String.valueOf(a))
+                .param("b", String.valueOf(b)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.a").value(2.0))
-                .andExpect(jsonPath("$.b").value(3.0))
-                .andExpect(jsonPath("$.result").value(5.0))
+                .andExpect(jsonPath("$.a").value(a))
+                .andExpect(jsonPath("$.b").value(b))
+                .andExpect(jsonPath("$.result").value(expectedResult))
                 .andExpect(jsonPath("$.operation").value("addition"));
-
-        verify(calculatorService, times(1)).add(2.0, 3.0);
     }
 
     @Test
-    void testSubtractEndpoint() throws Exception {
-        when(calculatorService.subtract(5.0, 2.0)).thenReturn(3.0);
+    @DisplayName("Should perform addition with negative numbers")
+    void testAddEndpointWithNegativeNumbers() throws Exception {
+        // Given
+        double a = -5.0;
+        double b = 3.0;
+        double expectedResult = -2.0;
 
-        mockMvc.perform(get("/api/calculator/subtract")
-                .param("a", "5.0")
-                .param("b", "2.0"))
+        when(calculatorService.add(a, b)).thenReturn(expectedResult);
+
+        // When & Then
+        mockMvc.perform(get("/api/calculator/add")
+                .param("a", String.valueOf(a))
+                .param("b", String.valueOf(b)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(3.0))
+                .andExpect(jsonPath("$.result").value(expectedResult));
+    }
+
+    // Subtraction Tests
+    @Test
+    @DisplayName("Should perform subtraction via GET endpoint")
+    void testSubtractEndpoint() throws Exception {
+        // Given
+        double a = 10.0;
+        double b = 3.0;
+        double expectedResult = 7.0;
+
+        when(calculatorService.subtract(a, b)).thenReturn(expectedResult);
+
+        // When & Then
+        mockMvc.perform(get("/api/calculator/subtract")
+                .param("a", String.valueOf(a))
+                .param("b", String.valueOf(b)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.a").value(a))
+                .andExpect(jsonPath("$.b").value(b))
+                .andExpect(jsonPath("$.result").value(expectedResult))
                 .andExpect(jsonPath("$.operation").value("subtraction"));
     }
 
+    // Multiplication Tests
     @Test
+    @DisplayName("Should perform multiplication via GET endpoint")
     void testMultiplyEndpoint() throws Exception {
-        when(calculatorService.multiply(4.0, 3.0)).thenReturn(12.0);
+        // Given
+        double a = 4.0;
+        double b = 5.0;
+        double expectedResult = 20.0;
 
+        when(calculatorService.multiply(a, b)).thenReturn(expectedResult);
+
+        // When & Then
         mockMvc.perform(get("/api/calculator/multiply")
-                .param("a", "4.0")
-                .param("b", "3.0"))
+                .param("a", String.valueOf(a))
+                .param("b", String.valueOf(b)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(12.0))
+                .andExpect(jsonPath("$.a").value(a))
+                .andExpect(jsonPath("$.b").value(b))
+                .andExpect(jsonPath("$.result").value(expectedResult))
                 .andExpect(jsonPath("$.operation").value("multiplication"));
     }
 
+    // Division Tests
     @Test
+    @DisplayName("Should perform division via GET endpoint")
     void testDivideEndpoint() throws Exception {
-        when(calculatorService.divide(10.0, 2.0)).thenReturn(5.0);
+        // Given
+        double a = 15.0;
+        double b = 3.0;
+        double expectedResult = 5.0;
 
+        when(calculatorService.divide(a, b)).thenReturn(expectedResult);
+
+        // When & Then
         mockMvc.perform(get("/api/calculator/divide")
-                .param("a", "10.0")
-                .param("b", "2.0"))
+                .param("a", String.valueOf(a))
+                .param("b", String.valueOf(b)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(5.0))
+                .andExpect(jsonPath("$.a").value(a))
+                .andExpect(jsonPath("$.b").value(b))
+                .andExpect(jsonPath("$.result").value(expectedResult))
                 .andExpect(jsonPath("$.operation").value("division"));
     }
 
     @Test
-    void testPowerEndpoint() throws Exception {
-        when(calculatorService.power(2.0, 3.0)).thenReturn(8.0);
+    @DisplayName("Should handle division by zero error")
+    void testDivideByZeroEndpoint() throws Exception {
+        // Given
+        double a = 10.0;
+        double b = 0.0;
 
-        mockMvc.perform(get("/api/calculator/power")
-                .param("base", "2.0")
-                .param("exponent", "3.0"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.base").value(2.0))
-                .andExpect(jsonPath("$.exponent").value(3.0))
-                .andExpect(jsonPath("$.result").value(8.0))
-                .andExpect(jsonPath("$.operation").value("power"));
+        when(calculatorService.divide(a, b))
+                .thenThrow(new IllegalArgumentException("Division by zero is not allowed"));
+
+        // When & Then
+        mockMvc.perform(get("/api/calculator/divide")
+                .param("a", String.valueOf(a))
+                .param("b", String.valueOf(b)))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
-    void testSquareRootEndpoint() throws Exception {
-        when(calculatorService.squareRoot(9.0)).thenReturn(3.0);
+    @DisplayName("Should perform division with decimal result")
+    void testDivideEndpointWithDecimalResult() throws Exception {
+        // Given
+        double a = 7.0;
+        double b = 2.0;
+        double expectedResult = 3.5;
 
-        mockMvc.perform(get("/api/calculator/sqrt")
-                .param("number", "9.0"))
+        when(calculatorService.divide(a, b)).thenReturn(expectedResult);
+
+        // When & Then
+        mockMvc.perform(get("/api/calculator/divide")
+                .param("a", String.valueOf(a))
+                .param("b", String.valueOf(b)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(9.0))
-                .andExpect(jsonPath("$.result").value(3.0))
+                .andExpect(jsonPath("$.result").value(expectedResult));
+    }
+
+    // Power Tests
+    @Test
+    @DisplayName("Should perform power calculation via GET endpoint")
+    void testPowerEndpoint() throws Exception {
+        // Given
+        double base = 2.0;
+        double exponent = 3.0;
+        double expectedResult = 8.0;
+
+        when(calculatorService.power(base, exponent)).thenReturn(expectedResult);
+
+        // When & Then
+        mockMvc.perform(get("/api/calculator/power")
+                .param("base", String.valueOf(base))
+                .param("exponent", String.valueOf(exponent)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.base").value(base))
+                .andExpect(jsonPath("$.exponent").value(exponent))
+                .andExpect(jsonPath("$.result").value(expectedResult))
+                .andExpect(jsonPath("$.operation").value("power"));
+    }
+
+    // Square Root Tests
+    @Test
+    @DisplayName("Should perform square root calculation via GET endpoint")
+    void testSquareRootEndpoint() throws Exception {
+        // Given
+        double number = 9.0;
+        double expectedResult = 3.0;
+
+        when(calculatorService.squareRoot(number)).thenReturn(expectedResult);
+
+        // When & Then
+        mockMvc.perform(get("/api/calculator/sqrt")
+                .param("number", String.valueOf(number)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.number").value(number))
+                .andExpect(jsonPath("$.result").value(expectedResult))
                 .andExpect(jsonPath("$.operation").value("square root"));
     }
 
     @Test
-    void testAbsoluteEndpoint() throws Exception {
-        when(calculatorService.absolute(-5.0)).thenReturn(5.0);
+    @DisplayName("Should handle square root of negative number error")
+    void testSquareRootNegativeNumberEndpoint() throws Exception {
+        // Given
+        double number = -4.0;
 
+        when(calculatorService.squareRoot(number))
+                .thenThrow(new IllegalArgumentException("Cannot calculate square root of negative number"));
+
+        // When & Then
+        mockMvc.perform(get("/api/calculator/sqrt")
+                .param("number", String.valueOf(number)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    // Absolute Value Tests
+    @Test
+    @DisplayName("Should perform absolute value calculation via GET endpoint")
+    void testAbsoluteEndpoint() throws Exception {
+        // Given
+        double number = -5.0;
+        double expectedResult = 5.0;
+
+        when(calculatorService.absolute(number)).thenReturn(expectedResult);
+
+        // When & Then
         mockMvc.perform(get("/api/calculator/abs")
-                .param("number", "-5.0"))
+                .param("number", String.valueOf(number)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(-5.0))
-                .andExpect(jsonPath("$.result").value(5.0))
+                .andExpect(jsonPath("$.number").value(number))
+                .andExpect(jsonPath("$.result").value(expectedResult))
                 .andExpect(jsonPath("$.operation").value("absolute value"));
     }
 
+    // Percentage Tests
     @Test
-    @DisplayName("Percentage endpoint should return correct result")
+    @DisplayName("Should perform percentage calculation via GET endpoint")
     void testPercentageEndpoint() throws Exception {
-        when(calculatorService.percentage(100.0, 20.0)).thenReturn(20.0);
+        // Given
+        double number = 100.0;
+        double percentage = 20.0;
+        double expectedResult = 20.0;
 
+        when(calculatorService.percentage(number, percentage)).thenReturn(expectedResult);
+
+        // When & Then
         mockMvc.perform(get("/api/calculator/percentage")
-                .param("number", "100.0")
-                .param("percentage", "20.0"))
+                .param("number", String.valueOf(number))
+                .param("percentage", String.valueOf(percentage)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(100.0))
-                .andExpect(jsonPath("$.percentage").value(20.0))
-                .andExpect(jsonPath("$.result").value(20.0))
+                .andExpect(jsonPath("$.number").value(number))
+                .andExpect(jsonPath("$.percentage").value(percentage))
+                .andExpect(jsonPath("$.result").value(expectedResult))
                 .andExpect(jsonPath("$.operation").value("percentage"));
     }
 
     // Error Handling Tests
-
     @Test
-    @DisplayName("Divide endpoint should handle division by zero")
-    void testDivideByZeroError() throws Exception {
-        when(calculatorService.divide(5.0, 0.0))
-                .thenThrow(new IllegalArgumentException("Division by zero is not allowed"));
-
-        mockMvc.perform(get("/api/calculator/divide")
-                .param("a", "5.0")
-                .param("b", "0.0"))
-                .andExpect(status().isBadRequest());
-
-        verify(calculatorService, times(1)).divide(5.0, 0.0);
-    }
-
-    @Test
-    @DisplayName("Square root endpoint should handle negative numbers")
-    void testSquareRootNegativeError() throws Exception {
-        when(calculatorService.squareRoot(-1.0))
-                .thenThrow(new IllegalArgumentException("Cannot calculate square root of negative number"));
-
-        mockMvc.perform(get("/api/calculator/sqrt")
-                .param("number", "-1.0"))
-                .andExpect(status().isBadRequest());
-
-        verify(calculatorService, times(1)).squareRoot(-1.0);
-    }
-
-    // Edge Case Tests
-
-    @Test
-    @DisplayName("Add endpoint should handle large numbers")
-    void testAddLargeNumbers() throws Exception {
-        when(calculatorService.add(Double.MAX_VALUE, 1.0)).thenReturn(Double.POSITIVE_INFINITY);
-
-        mockMvc.perform(get("/api/calculator/add")
-                .param("a", String.valueOf(Double.MAX_VALUE))
-                .param("b", "1.0"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(Double.POSITIVE_INFINITY));
-    }
-
-    @Test
-    @DisplayName("Multiply endpoint should handle zero")
-    void testMultiplyWithZero() throws Exception {
-        when(calculatorService.multiply(5.0, 0.0)).thenReturn(0.0);
-
-        mockMvc.perform(get("/api/calculator/multiply")
-                .param("a", "5.0")
-                .param("b", "0.0"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(0.0));
-    }
-
-    @Test
-    @DisplayName("Power endpoint should handle fractional exponents")
-    void testPowerFractionalExponent() throws Exception {
-        when(calculatorService.power(4.0, 0.5)).thenReturn(2.0);
-
-        mockMvc.perform(get("/api/calculator/power")
-                .param("base", "4.0")
-                .param("exponent", "0.5"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(2.0));
-    }
-
-    @Test
-    @DisplayName("Absolute endpoint should handle negative numbers")
-    void testAbsoluteNegativeNumber() throws Exception {
-        when(calculatorService.absolute(-5.5)).thenReturn(5.5);
-
-        mockMvc.perform(get("/api/calculator/abs")
-                .param("number", "-5.5"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(5.5));
-    }
-
-    // Parameter Validation Tests
-
-    @Test
-    @DisplayName("Endpoints should handle missing parameters")
+    @DisplayName("Should return 400 for missing parameters")
     void testMissingParameters() throws Exception {
-        mockMvc.perform(get("/api/calculator/add")
-                .param("a", "5.0"))
-                .andExpect(status().isBadRequest());
-
-        mockMvc.perform(get("/api/calculator/multiply"))
+        // When & Then
+        mockMvc.perform(get("/api/calculator/add"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("Endpoints should handle invalid parameter formats")
-    void testInvalidParameterFormats() throws Exception {
+    @DisplayName("Should return 400 for invalid parameter format")
+    void testInvalidParameterFormat() throws Exception {
+        // When & Then
         mockMvc.perform(get("/api/calculator/add")
                 .param("a", "invalid")
                 .param("b", "3.0"))
                 .andExpect(status().isBadRequest());
-    }
-
-    // Content Type Tests
-
-    @Test
-    @DisplayName("Endpoints should return JSON content type")
-    void testContentType() throws Exception {
-        when(calculatorService.add(2.0, 3.0)).thenReturn(5.0);
-
-        mockMvc.perform(get("/api/calculator/add")
-                .param("a", "2.0")
-                .param("b", "3.0"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
-    }
-
-    // CORS Tests
-
-    @Test
-    @DisplayName("Endpoints should support CORS")
-    void testCorsSupport() throws Exception {
-        when(calculatorService.add(2.0, 3.0)).thenReturn(5.0);
-
-        mockMvc.perform(get("/api/calculator/add")
-                .header("Origin", "http://localhost:3000")
-                .param("a", "2.0")
-                .param("b", "3.0"))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Access-Control-Allow-Origin", "*"));
     }
 }

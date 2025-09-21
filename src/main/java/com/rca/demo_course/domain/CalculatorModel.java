@@ -1,50 +1,46 @@
 package com.rca.demo_course.domain;
 
+import com.rca.demo_course.service.CalculatorService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class CalculatorModel {
 
+    @Autowired
+    private CalculatorService calculatorService;
+
     public double add(double a, double b) {
-        return a + b;
+        return calculatorService.add(a, b);
     }
 
 
-    private double subtract(double a, double b) {
-        return a - b;
+    public double subtract(double a, double b) {
+        return calculatorService.subtract(a, b);
     }
 
-
-    private double multiply(double a, double b) {
-        return a * b;
+    public double multiply(double a, double b) {
+        return calculatorService.multiply(a, b);
     }
 
-
-    private double divide(double a, double b) {
-        if (b == 0) {
-            throw new IllegalArgumentException("Division by zero is not allowed");
-        }
-        return a / b;
+    public double divide(double a, double b) {
+        return calculatorService.divide(a, b);
     }
 
-
-    private double power(double base, double exponent) {
-        return Math.pow(base, exponent);
+    public double power(double base, double exponent) {
+        return calculatorService.power(base, exponent);
     }
 
-
-    private double squareRoot(double number) {
-        if (number < 0) {
-            throw new IllegalArgumentException("Cannot calculate square root of negative number");
-        }
-        return Math.sqrt(number);
+    public double squareRoot(double number) {
+        return calculatorService.squareRoot(number);
     }
 
-
-    private double absolute(double number) {
-        return Math.abs(number);
+    public double absolute(double number) {
+        return calculatorService.absolute(number);
     }
 
-
-    private double percentage(double number, double percentage) {
-        return (number * percentage) / 100;
+    public double percentage(double number, double percentage) {
+        return calculatorService.percentage(number, percentage);
     }
 
     public static void main(String[] args) {
